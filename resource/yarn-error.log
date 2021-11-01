@@ -1,0 +1,36 @@
+Arguments: 
+  /home/nahid/.nvm/versions/node/v12.13.0/bin/node /home/nahid/.nvm/versions/node/v12.13.0/bin/yarn add -D axios @types/acios
+
+PATH: 
+  /home/nahid/.cache/cloud-code/installer/google-cloud-sdk/bin:/home/nahid/.nvm/versions/node/v12.13.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/nahid/Android/Sdk/tools:/home/nahid/Android/Sdk/platform-tools:/home/nahid/Android/Sdk/tools:/home/nahid/Android/Sdk/platform-tools
+
+Yarn version: 
+  1.22.15
+
+Node version: 
+  12.13.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/@types%2facios: Not found
+      at Request.params.callback [as _callback] (/home/nahid/.nvm/versions/node/v12.13.0/lib/node_modules/yarn/lib/cli.js:66140:18)
+      at Request.self.callback (/home/nahid/.nvm/versions/node/v12.13.0/lib/node_modules/yarn/lib/cli.js:140885:22)
+      at Request.emit (events.js:210:5)
+      at Request.<anonymous> (/home/nahid/.nvm/versions/node/v12.13.0/lib/node_modules/yarn/lib/cli.js:141857:10)
+      at Request.emit (events.js:210:5)
+      at IncomingMessage.<anonymous> (/home/nahid/.nvm/versions/node/v12.13.0/lib/node_modules/yarn/lib/cli.js:141779:12)
+      at Object.onceWrapper (events.js:299:28)
+      at IncomingMessage.emit (events.js:215:7)
+      at endReadableNT (_stream_readable.js:1183:12)
+      at processTicksAndRejections (internal/process/task_queues.js:80:21)
+
+npm manifest: 
+  No manifest
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

@@ -6,5 +6,7 @@
 {"accessRights":[1,2,3],"expirationTime":{"$$date":1635695861872},"tokenId":"someTokenIdy85ii","userName":"someUserName","valid":true,"_id":"dhhNQvgZbMSHI2sp"}
 {"accessRights":[1,2,3],"expirationTime":{"$$date":1635695261463},"tokenId":"someTokenIdfqzzgj","userName":"someUserName","valid":true,"_id":"pwbkHjqcT9YeUgbV"}
 {"accessRights":[1,2,3,4],"expirationTime":{"$$date":1597074714001},"valid":true,"tokenId":"oi3ob6s5hvg","_id":"wuQJTkvrbPqohg0M"}
-{"accessRights":[1,2,3],"expirationTime":{"$$date":1635696137291},"tokenId":"someTokenIdox16y","userName":"someUserName","valid":true,"_id":"n16B5CV1nH8WFdua"}
-{"$$deleted":true,"_id":"n16B5CV1nH8WFdua"}
+{"accessRights":[1,2,3],"expirationTime":{"$$date":1635698654556},"tokenId":"someTokenIdsto06f","userName":"someUserName","valid":true,"_id":"006GRaGSnFVyxaYL"}
+{"$$deleted":true,"_id":"006GRaGSnFVyxaYL"}
+{"accessRights":[1,2,3,4],"expirationTime":{"$$date":1635702926492},"valid":true,"tokenId":"wky87lmxxai","_id":"ebNwx26t3MGFvift"}
+{"accessRights":[1,2,3,4],"expirationTime":{"$$date":1635702957003},"valid":true,"tokenId":"hsrkes4dcju","_id":"uh9CZhCkM4pBd7Lz"}
