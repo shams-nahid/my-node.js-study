@@ -1,0 +1,44 @@
+### Create a new user
+
+POST http://localhost:3000/v1/auth/signup
+Content-Type: application/json
+
+{
+  "email": "test12333@mail.com",
+  "password": "12345Pass"
+}
+
+### Sign in to the system
+
+POST http://localhost:3000/v1/auth/signin
+Content-Type: application/json
+
+{
+  "email": "test12333@mail.com",
+  "password": "12345Pass"
+}
+
+
+### Find a particular user with id
+
+GET http://localhost:3000/v1/auth/2
+
+
+### Find users with email
+
+GET http://localhost:3000/v1/auth?email=test@mail.com
+
+
+### Update user with id and attributes
+
+PATCH http://localhost:3000/v1/auth/2
+Content-Type: application/json
+
+{
+  "email": "updated_test@mail.com",
+  "password": "12345Pass"
+}
+
+### Delete user with id
+
+DELETE http://localhost:3000/v1/auth/1
