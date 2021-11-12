@@ -9,7 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -26,6 +28,12 @@ export class UsersController {
     private userService: UsersService,
     private authService: AuthService,
   ) {}
+
+  @Get('/protected')
+  @UseGuards(AuthGuard())
+  protectedRoute() {
+    return 'Access Confirmed';
+  }
 
   @Post('/signup')
   createUser(@Body() body: CreateUserDto) {

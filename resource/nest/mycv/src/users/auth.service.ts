@@ -6,6 +6,7 @@ import {
 import { randomBytes, scrypt as _scrypt } from 'crypto';
 import * as _ from 'lodash';
 import { promisify } from 'util';
+import { JwtService } from '@nestjs/jwt';
 
 import { UsersService } from './users.service';
 
@@ -14,7 +15,10 @@ const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
   async signup(email: string, password: string) {
     // check if email already exists
@@ -48,6 +52,10 @@ export class AuthService {
     if (storedHash !== hash.toString('hex')) {
       throw new BadRequestException('Invalid Credentials');
     }
-    return user;
+    const payload = {
+      id: user.id,
+    };
+    const accessToken = await this.jwtService.sign(payload);
+    return { accessToken };
   }
 }
