@@ -48,3 +48,9 @@ DELETE http://localhost:3000/v1/auth/1
 GET http://localhost:3000/v1/auth/protected
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjM2NzM0NTg4LCJleHAiOjE2MzkzMjY1ODh9.9KISpP4ZTjWGbDEkE8dWnakUzxfuNrV7yJDfHgUiL2A
+
+### Who Am I
+
+GET http://localhost:3000/v1/auth/whoami
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjM2NzM0NTg4LCJleHAiOjE2MzkzMjY1ODh9.9KISpP4ZTjWGbDEkE8dWnakUzxfuNrV7yJDfHgUiL2A

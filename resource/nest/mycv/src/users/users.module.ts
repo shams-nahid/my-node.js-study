@@ -9,6 +9,8 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
+import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -17,7 +19,15 @@ import { JwtStrategy } from './jwt.strategy';
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [UsersController],
-  providers: [UsersService, AuthService, JwtStrategy],
+  providers: [
+    UsersService,
+    AuthService,
+    JwtStrategy,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CurrentUserInterceptor,
+    },
+  ],
   exports: [JwtStrategy, PassportModule],
 })
 export class UsersModule {}

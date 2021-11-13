@@ -14,13 +14,15 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UserDto } from './dtos/user.dto';
+import { User } from './user.entity';
 import { UsersService } from './users.service';
 
-@Serialize(UserDto)
 @Controller('auth')
+@Serialize(UserDto)
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
 
@@ -33,6 +35,11 @@ export class UsersController {
   @UseGuards(AuthGuard())
   protectedRoute() {
     return 'Access Confirmed';
+  }
+
+  @Get('/whoami')
+  whoAmI(@CurrentUser() user: User) {
+    return user;
   }
 
   @Post('/signup')
