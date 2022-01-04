@@ -6,3 +6,6 @@
 6. What is node.js event loop?
 7. What is node.js multi-thread?
 8. Why node.js scales well?
+9. Can we use thread pool for javascript code? Or only nodeJs function like pbkdf2 can use the thread-pool?
+10. What functions in Node.js use thread pool? (fs, crypto, depends on OS)
+11. Relations of thread pool and event loop? (Thread pools tasks are `pending operations` to event loop)
