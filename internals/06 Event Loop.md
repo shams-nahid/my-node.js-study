@@ -1,5 +1,23 @@
 ### Event Loop
 
+Anytime we run a node.js program, it creates one thread and then run all of our codes inside that thread.
+
+Event loop acts as a control structure to decide, what our one thread should be doing at one given time.
+
+When we run a js file, Node first take all the codes and execute it. This is the moment we enter to the event loop.
+
+Every time the event loop executes a cycle, in Node.js world it is called tick.
+
+Every single time the event loop about to execute, Node does a quick check whether the loop should proceed or not for another iteration. If node decides not to run more iteration, the program close and we goes back to terminal.
+
+Event loop continues to next iteration when `shouldContinue` method return true.
+
+When node first goes through the code first time, it detects `pendingTimers`, `pendingOSTasks`, and `pendingOperations`.
+
+### Tick
+
+Every single iteration of a event loop is called tick.
+
 ```js
 // javascript code is written inside the myFile.js
 
