@@ -49,3 +49,18 @@ while (shouldContinue()) {
   // 5) Handle any 'close' events
 }
 ```
+
+### Summary
+
+Node.js event loop,
+
+1. Process and execute code in index.js
+2. Look for times, OS tasks, thread pool. If no tasks exists, exit.
+3. Run setTimeout's, setInterval's
+4. Run callbacks for OS tasks and thread pools pending stuff
+5. Pause and wait for stuff done
+6. Run setImmediate functions
+7. Handle close events
+8. Return to step 2
+
+

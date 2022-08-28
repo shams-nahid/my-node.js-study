@@ -2,7 +2,7 @@
 
 - When we run program in computer, we run `Process`. `Process` is an instance of computer program.
 - Inside a process, there are single/multiple things called threads
-- A thread contains a instruction list like get a file, read-it, execute an operation, close the filet etc. These instructions inside the threads, usually executed by the CPU.
+- A thread contains a instruction list like get a file, read-it, execute an operation, close the file etc. These instructions inside the threads, usually executed by the CPU.
 - Scheduler decides which threads will be executed in a specific instance of time.
 - OS has multiple core (physical and logical) to executes threads.
 
