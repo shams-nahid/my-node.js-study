@@ -10,22 +10,22 @@
 10. What functions in Node.js use thread pool? (fs, crypto, depends on OS)
 11. Relations of thread pool and event loop? (Thread pools tasks are `pending operations` to event loop)
 
-
 **What is node.js**
 
 ---
+
 Node.js used for building highly scalable server-side applications using JavaScript.
 
 - Open-source server side runtime environment
 - Built on Chrome's V8 JavaScript engine which internally use libUV library
-- provides 
-    - Event driven
-    - Non-blocking (asynchronous) I/O
-    - cross-platform runtime environment
+- provides
+  - Event driven
+  - Non-blocking (asynchronous) I/O
+  - cross-platform runtime environment
 
 **Why we use node.js instead of directly using V8 and libuv?**
 
---- 
+---
 
 - V8
   - Allow running JavScript outside of browser
@@ -40,9 +40,8 @@ libuv = 100 C++
 
 With Node.js
 
-- As javascript developer, we do no have to write C++ to interact and making use of `V8` and `libuv`. Node.js provide an interface, where our JS code can make use of these C++ codes. 
+- As javascript developer, we do no have to write C++ to interact and making use of `V8` and `libuv`. Node.js provide an interface, where our JS code can make use of these C++ codes.
 - Node also provides a series of wrappers to use in our application like, `http module`, `fs module`, `crypto module` and `path module` etc. Most of these modules are using the functionalities from the `libuv`, internally written in C++. By making use of node, we can invoke the function in javascript and these function will call the C++ codes.
-
 
 **How node.js utilize V8 and libuv? Explain with example.**
 
@@ -143,7 +142,7 @@ Node.js event loop,
 
 **Explain node.js multi-thread operation?**
 
---- 
+---
 
 ### Threads
 
@@ -156,7 +155,6 @@ Node.js event loop,
 Example of OS Scheduling:
 
 Usually an I/O operation requires non zero time to be completed. In a thread, there can be two threads, one to read file from hard drive and another operation on that file. OS first try to get the file from disk. This is a time consuming process. During this waiting time, a CPU can take another thread and return back to the first thread to do the rest of the works.
-
 
 **Can we use thread pool for our js code or it is only applicable for certain node js libaray function?**
 
@@ -194,12 +192,12 @@ Observe the following codes,
 const start = new Date.now();
 
 function doRequest() {
-    // making a http request
-    console.log(`HTTP: ${Date.now() - start}ms`);
+  // making a http request
+  console.log(`HTTP: ${Date.now() - start}ms`);
 }
 
 function doHash() {
-    crypto.pbkdf2(...args, () => {
+  crypto.pbkdf2(...args, () => {
     console.log(`Hash: ${Date.now() - start}ms`);
   });
 }
@@ -207,7 +205,7 @@ function doHash() {
 doRequest();
 
 fs.readFile('fileName', 'format', () => {
-    console.log(`FS: ${Date.now() - start}ms`)
+  console.log(`FS: ${Date.now() - start}ms`);
 });
 
 doHash();
@@ -238,6 +236,7 @@ Explaination:
 HTTP calls are handles by OS itself. On the other hand, file system operation and hashing operation are handled by the thread pool. So while other operations making it to the thread pool, we get results from http request.
 
 For file system operation, there are two distinct process,
+
 - Get stat about the file
 - Read the file
 
@@ -247,7 +246,6 @@ The first thread, While we go and look at the stat of the file, and wait for sta
 In the meantime, the file stats are ready.
 The moment one hash is completed, the empty thread take the leftover file operation and make it completed almost immediately.
 
-
 Now if we make the thread pool size 5,
 
 ```js
@@ -256,12 +254,12 @@ process.env.UV_THREADPOOL_SIZE = 5;
 const start = new Date.now();
 
 function doRequest() {
-    // making a http request
-    console.log(`HTTP: ${Date.now() - start}ms`);
+  // making a http request
+  console.log(`HTTP: ${Date.now() - start}ms`);
 }
 
 function doHash() {
-    crypto.pbkdf2(...args, () => {
+  crypto.pbkdf2(...args, () => {
     console.log(`Hash: ${Date.now() - start}ms`);
   });
 }
@@ -269,7 +267,7 @@ function doHash() {
 doRequest();
 
 fs.readFile('fileName', 'format', () => {
-    console.log(`FS: ${Date.now() - start}ms`)
+  console.log(`FS: ${Date.now() - start}ms`);
 });
 
 doHash();
@@ -300,8 +298,122 @@ Hash: time
 FS: time
 ```
 
+**Relations of thread pool and event loop?**
 
-8. Why node.js scales well?
-9. Can we use thread pool for javascript code? Or only nodeJs function like pbkdf2 can use the thread-pool?
-10. What functions in Node.js use thread pool? (fs, crypto, depends on OS)
-11. Relations of thread pool and event loop? (Thread pools tasks are `pending operations` to event loop)
+Thread pools tasks are `pending operations` to event loop.
+
+**Example of Event Loop Thread Pool and OS Tasks**
+
+Observe the following codes,
+
+```js
+const start = new Date.now();
+
+function doRequest() {
+  // making a http request
+  console.log(`HTTP: ${Date.now() - start}ms`);
+}
+
+function doHash() {
+  crypto.pbkdf2(...args, () => {
+    console.log(`Hash: ${Date.now() - start}ms`);
+  });
+}
+
+doRequest();
+
+fs.readFile('fileName', 'format', () => {
+  console.log(`FS: ${Date.now() - start}ms`);
+});
+
+doHash();
+doHash();
+doHash();
+doHash();
+```
+
+Output,
+
+```
+Network: time
+Hash: time
+FS: time
+Hash: time
+Hash: time
+Hash: time
+```
+
+Facts:
+
+- There's no way File System operation should take more time than a hashing
+- Why always HTTP request comes first
+- Why always a hash operation takes place before the file operation
+
+Explaination:
+
+HTTP calls are handles by OS itself. On the other hand, file system operation and hashing operation are handled by the thread pool. So while other operations making it to the thread pool, we get results from http request.
+
+For file system operation, there are two distinct process,
+
+- Get stat about the file
+- Read the file
+
+By default we have 4 threads in the thread pool. We have 5 operations, 1 file system operation and 4 hash operation. Among them, initially, 1 fs took one thread and 3 hash take other 3 threads.
+
+The first thread, While we go and look at the stat of the file, and wait for stats, the one leftover hash took place in the pool.
+In the meantime, the file stats are ready.
+The moment one hash is completed, the empty thread take the leftover file operation and make it completed almost immediately.
+
+Now if we make the thread pool size 5,
+
+```js
+process.env.UV_THREADPOOL_SIZE = 5;
+
+const start = new Date.now();
+
+function doRequest() {
+  // making a http request
+  console.log(`HTTP: ${Date.now() - start}ms`);
+}
+
+function doHash() {
+  crypto.pbkdf2(...args, () => {
+    console.log(`Hash: ${Date.now() - start}ms`);
+  });
+}
+
+doRequest();
+
+fs.readFile('fileName', 'format', () => {
+  console.log(`FS: ${Date.now() - start}ms`);
+});
+
+doHash();
+doHash();
+doHash();
+doHash();
+```
+
+Output will be,
+
+```
+FS: time
+Network: time
+Hash: time
+Hash: time
+Hash: time
+Hash: time
+```
+
+What if we make the threadpool size 1,
+
+```
+Network: time
+Hash: time
+Hash: time
+Hash: time
+Hash: time
+FS: time
+```
+
+**Why node.js scales well?**
