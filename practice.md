@@ -299,3 +299,214 @@ FS: time
 ```
 
 **Why node.js scales well?**
+
+**Explain clustering with example**
+
+There are scenario, where we have to do time consuming work in the event loop. Since event loop is single threaded, any time consuming operation will pause the loop for further I/O for a certain period of time. There are two ways, we can somehow mitigate the performance impact,
+
+- Cluster mode
+- Worker threads
+
+### Clustering
+
+Consider an example, in node server, we receive a request, and have tons of computation before sending the response. This computation task is in javascript and is not delegate to the OS or thread pool. During this computation, the event loop can not take next request.
+
+```js
+const doSomeWork = duration => {
+  const start = Date.now();
+  while (Date.now() - start < duration) {}
+};
+
+app.get('/', (req, res) => {
+  doSomeWork(5000);
+  res.send('Hi there');
+});
+
+app.listen(8000);
+```
+
+To overcome the issue, we can introduce the clustering. With clustering, there is a parent process, we called cluster manager.
+
+Cluster manager,
+
+- Monitor health of the instances
+- Can start/stop/restart the instances
+- Can send data to the instances
+
+Cluster manager does not Handle request or Fetch data from DB.
+
+Without clustering, when we run a node.js app, it went through the `index.js` and create an instance to handle incoming request. With clustering, initially a instance called `Cluster` is created. Then the `cluster` is responsible for creating child instance, using `child.fork()`. These child instances are responsible for handling the incoming request.
+
+```js
+const cluster = require('cluster');
+
+// is file being executed in cluster/master mode
+if (cluster.isMaster) {
+  cluster.fork(); // Run `index.js` in child mode
+  cluster.fork(); // Run `index.js` in child mode
+} else {
+  // This is a child server and will run as server
+  const doSomeWork = duration => {
+    const start = Date.now();
+    while (Date.now() - start < duration) {}
+  };
+
+  app.get('/', (req, res) => {
+    doSomeWork(5000);
+    res.send('Hi there');
+  });
+
+  app.listen(8000);
+}
+```
+
+### Advantage of Clustering
+
+Lets consider the express server route,
+
+```js
+const doSomeWork = duration => {
+  const start = Date.now();
+  while (Date.now() - start < duration) {}
+};
+
+app.get('/fast', (req, res) => {
+  res.send('Fast route');
+});
+
+app.get('/slow', (req, res) => {
+  doSomeWork();
+  res.send('Fast route');
+});
+```
+
+With this code, if we call, `/slow` and almost immediately `/fast`, the following scenario happen,
+
+- We first hit the `/slow` and the event loop will not process any further request in next 5 seconds.
+- Then the `/fast` route come to play and get executed.
+
+It appears, even the `/fast` is super fast but due to event loop in single thread and previous route is taking 5 seconds, it can not executed immediately.
+
+In this case, we can make use of the clustering as follows,
+
+```js
+if (cluster.isMaster) {
+  cluster.fork();
+  cluster.fork();
+} else {
+  const doSomeWork = duration => {
+    const start = Date.now();
+    while (Date.now() - start < duration) {}
+  };
+
+  app.get('/fast', (req, res) => {
+    res.send('Fast route');
+  });
+
+  app.get('/slow', (req, res) => {
+    doSomeWork();
+    res.send('Fast route');
+  });
+}
+```
+
+Here, with clustering, we make two of the node.js event loop instances. In this case, when we call `/slow` and almost immediately `/fast`,
+
+- Fist event loop instance will take care of `/slow`
+- The second event loop instance will take care of `/fast` while the `/slow` is still being proceed by first event loop
+
+> So this is a practical way, where clustering can play a huge benefit inside the app. When there are some route in app, take longer to process and some other route which are fast, using clustering, we can spin up multiple server and can achieve faster response time.
+
+**What are the limitations of clustering?**
+
+### Limitation of Clustering
+
+There are a couple of corner cases in clustering which we should be concerned.
+
+Before we get into the example lets make some assumption
+
+- The machine, running the code, has two core (Duel core machine)
+- The hashing algorithm requires 1 seconds to be executed in one single thread
+
+Now, consider the following code,
+
+```js
+process.env.UV_THREADPOOL_SIZE = 1;
+
+if (cluster.isMaster) {
+  cluster.fork();
+} else {
+  app.get('/', (req, res) => {
+    runHash(() => {
+      return res;
+    });
+  });
+}
+```
+
+In this case, when we send 1 request, it will be executed in 1 seconds and the response time will be same.
+
+Consider making 2 request concurrently. Since there is only one thread, first hash will take 1 second and then the 2nd hashing start working. So the second request will be completed after 2 seconds.
+
+How about, we make use of clustering by making 2 children here,
+
+```js
+process.env.UV_THREADPOOL_SIZE = 1;
+
+if (cluster.isMaster) {
+  cluster.fork(); // 1st child
+  cluster.fork(); // 2nd child
+} else {
+  app.get('/', (req, res) => {
+    runHash(() => {
+      return res;
+    });
+  });
+}
+```
+
+Now when we send 2 request, concurrently, both two child server take one and execute in 1 seconds in total. This is the place, clustering come to place.
+
+Since using 2 children server can optimize operation, can we add more and more children and get more optimized result? How about making 6 children?
+
+```js
+process.env.UV_THREADPOOL_SIZE = 1;
+
+if (cluster.isMaster) {
+  cluster.fork();
+  cluster.fork();
+  cluster.fork();
+  cluster.fork();
+  cluster.fork();
+  cluster.fork();
+} else {
+  app.get('/', (req, res) => {
+    runHash(() => {
+      return res;
+    });
+  });
+}
+```
+
+Now we have 6 children and we will send 6 requests concurrently. Surprisingly, we can notice, all the hashing will be completed around 3.5 ~ 4 seconds.
+
+This is because, we assume out machine has only 2 threads and can not process more at a single time. So all 6 hashing try to be resolved in a same time and the limited 2 threads do partial work on all. This is why, it even take more time.
+
+So to get optimized response, it is useful to adjust child server numbers according to the number of cores in server.
+
+**How to handle clustering in your application?**
+
+Instead of running clustering manually, in production, better handle using `pm2`.
+
+`PM2` is a cluster management tools can handle the clustering very efficiently.
+
+- Can spin up child server according to the logical core of the server
+- Can spin up child server by specify the number
+- Can inspect, monitor and log the running instances
+- Can start/end/restart the child instances
+
+**Tell me about worker threads**
+
+Worker threads create separate threads inside our application. To communicate with these worker thread, we have `postMessage` and `onMessage` methods. This `postMessage` and `onMessage` is applicable for both the worker thread and main application thread.
+
+Usually, in libUV, a couple of methods already use the thread pool. And using worker threads, does not prevent them using their own thread. That means, creating worker thread to delegate these jobs does not make sense.
