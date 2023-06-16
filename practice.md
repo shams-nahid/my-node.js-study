@@ -19,7 +19,7 @@ Node.js used for building highly scalable server-side applications using JavaScr
 - Open-source server side runtime environment
 - Built on Chrome's V8 JavaScript engine which internally use libUV library
 - provides
-  - Event driven
+  - Event driven (**What does it mean?**)
   - Non-blocking (asynchronous) I/O
   - cross-platform runtime environment
 
