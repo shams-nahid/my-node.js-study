@@ -47,6 +47,11 @@ With Node.js
 
 ---
 
+In a nutshell,
+
+- We invoke a method in JS
+- That is interpreted and passed to C++ relevant method
+
 All the modules are implemented in the nodejs `lib` directory.
 
 If we consider implementing a `crypto` library algorithm `pbkdf2`, we can see it invokes the function `PBKDF2` from the C++. These C++ implementations are written in `src` directory. From JavaScript, we can invoke the method from C++ using `process.bindings`. `Process.bindings` are seems to be a bridge between C++ and JavaScript. To make a C++ method available to the JavaScript world, we export a C++ method using `env->SetMethod(target, "PBKDF2", PBKDf2)`.
